@@ -6,9 +6,9 @@ import os
 
 class Scraping:
 
-    def __init__(self, source_url):
+    def __init__(self):
         
-        self.source_url = source_url
+        self.source_url = 'http://vitibrasil.cnpuv.embrapa.br'
 
     def get_content(self, url):
         '''
@@ -114,3 +114,17 @@ class Scraping:
     
                 file.write(content)
 
+    def run(self):
+
+        options = ['opt_02', 'opt_03', 'opt_04', 'opt_05', 'opt_06']
+
+        download_data= self.get_all_download_urls(options=options)
+
+        for data in download_data:
+            opt = data['opt']
+            sub_opt = data['sub_opt'] if data['sub_opt'] else 'default'
+            download_url = data['download_url']
+            file_name = f"{opt}_{sub_opt}.csv"
+            file_path = 'src/database/temp_files'
+            self.download_csv(download_url, file_path, file_name)
+        
