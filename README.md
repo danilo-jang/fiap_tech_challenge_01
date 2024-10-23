@@ -8,3 +8,5 @@ Este repositório foi criado com o objetivo de desenvolver uma API focada na vit
 ### 👥 Grupo 
 - Renato Martinelli
 - Danilo Jang
+
+X
