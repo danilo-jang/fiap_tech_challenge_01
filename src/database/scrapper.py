@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
+import re
 
-
-class Scraping:
+class Scrapper:
 
     def __init__(self):
         
@@ -20,7 +20,16 @@ class Scraping:
             response.raise_for_status()
             return response.content
         except requests.RequestException as e:
-            print(f'ERRO: {e}')
+            file_name = url.split("=")[:-1]
+            pattern = re.compile(file_name + "[^ ]+.csv")
+            for fp in os.listdir("src/database/temp_files/"):
+                match = pattern.match(fp)
+                if match:
+                    file_name = f"src/database/temp_files/{str(match.group(0))}"
+                    print(f"O CSV correspondente [{file_name}] existe, tamanho [{os.path.getsize(file_name)}]")
+                else:
+                    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+
             return None
 
     def get_subopt(self, opt):
@@ -116,7 +125,12 @@ class Scraping:
 
     def run(self):
 
-        options = ['opt_02', 'opt_03', 'opt_04', 'opt_05', 'opt_06']
+        #options = ['opt_02', 'opt_03', 'opt_04', 'opt_05', 'opt_06']
+        options = {'opt_02':'Producao', 'opt_03':'Processamento', 'opt_04':'Comercializacao', 'opt_05':'Importacao', 'opt_06':'Exportacao'}
+        sub_options = {'opt_02_subopt_01':'Viniferas', 'opt_02_subopt_02':'Americanas e hibridas', 'opt_02_subopt_03':'Uvas de Mesa', 'opt_02_subopt_04':'Sem classificacao',
+                       'opt_03_subopt_01':'Viniferas', 'opt_03_subopt_02':'Americanas e hibridas', 'opt_03_subopt_03':'Uvas de Mesa', 'opt_03_subopt_04':'Sem classificacao',  
+                       'opt_05_subopt_01':'Vinhos de mesa', 'opt_05_subopt_02':'Espumantes', 'opt_05_subopt_03':'Uvas frescas', 'opt_05_subopt_04':'Sucos passas', 'opt_05_subopt_05':'Sucos de uva',
+                       'opt_06_subopt_01':'Vinhos de mesa', 'opt_06_subopt_02':'Espumantes', 'opt_06_subopt_03':'Uvas frescas', 'opt_06_subopt_04':'Sucos de uva'}
 
         download_data= self.get_all_download_urls(options=options)
 

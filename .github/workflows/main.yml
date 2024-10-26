@@ -1,0 +1,21 @@
+name: Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions: write-all
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Teste
+        run: |
+          echo "Nice!"
+        shell: bash

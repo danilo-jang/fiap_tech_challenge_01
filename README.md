@@ -10,7 +10,7 @@ Este repositório foi criado com o objetivo de desenvolver uma API focada na vit
 - Danilo Jang
 
 ### Objetivo
-Baseado na Produção, Processamento e Comercialização, oferecer sugestões para melhoria da Importação e Exportação.
+Baseado na Produção, Processamento e Comercialização, oferecer sugestões para melhoria da Exportação.
 
 ### Arquitetura
 
@@ -40,3 +40,23 @@ Ao ocorrer um push na branch main, inicia-se o workflow de CI que realiza as seg
 Caso o CI ocorra com sucesso, o Modelo de Machine Learning será criado / atualizado na sequência.
 
 
+pipenv shell
+
+pipenv install fastapi uvicorn requests
+cd src/api/
+uvicorn api:server.app --reload
+
+
+>>> pattern = re.compile("opt_02_default[^ ]+")
+>>> print(f"{pattern}")
+re.compile('opt_02_default[^ ]+')
+>>> match = pattern.match("opt_02_default.csv")
+>>> print(f"{match}")
+<re.Match object; span=(0, 18), match='opt_02_default.csv'>
+
+p=r"" + file_name + "[^ ]+"
+>>> pattern = re.compile(p)
+
+>>> pattern = re.compile(r"opt_02_default[^ ]+")
+>>> match = pattern.match(r"opt_02_default.csv")
+>>> print(f"{match}")
