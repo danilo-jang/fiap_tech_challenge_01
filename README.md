@@ -66,3 +66,8 @@ Baixando http://vitibrasil.cnpuv.embrapa.br/download/ImpFrescas.csv src/database
 
 URL [http://vitibrasil.cnpuv.embrapa.br/download/ImpFrescas.csv] 
 ERRO: [HTTPConnectionPool(host='vitibrasil.cnpuv.embrapa.br', port=80): Max retries exceeded with url: /download/ImpFrescas.csv (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1169261e0>: Failed to establish a new connection: [Errno 61] Connection refused'))]
+
+btendo a URL de download opt_06 subopt_04
+[{'opt': 'opt_02', 'sub_opt': None, 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/Producao.csv'}, {'opt': 'opt_03', 'sub_opt': 'subopt_01', 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/ProcessaViniferas.csv'}, {'opt': 'opt_03', 'sub_opt': 'subopt_02', 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/ProcessaAmericanas.csv'}, {'opt': 'opt_03', 'sub_opt': 'subopt_03', 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/ProcessaMesa.csv'}, {'opt': 'opt_0
+
+python3 src/pipeline.py

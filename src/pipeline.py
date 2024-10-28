@@ -1,8 +1,9 @@
 import os 
+import uvicorn
 
 from database.scrapper import Scrapper
 
-def main():
+def pipeline():
 
     '''
     Execução de todo pipeline de extração dos dados
@@ -11,6 +12,8 @@ def main():
 
     scraper.run()
 
+    uvicorn.run("endpoints.api:server.app", host="127.0.0.1", port=8000, reload=True)
+
 if __name__ == '__main__':
 
-    main()
+    pipeline()

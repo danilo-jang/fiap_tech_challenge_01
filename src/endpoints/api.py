@@ -20,7 +20,7 @@ class Api:
         self.source_url = 'http://vitibrasil.cnpuv.embrapa.br'
 
         def handle_csv(year, opt, sub_opt):
-            file_path = "../database/temp_files/"
+            file_path = "src/database/temp_files/"
             sopt = ""
             if sub_opt:
                 sopt = f"_subopt_{sub_opt}([^ ]+|)"
