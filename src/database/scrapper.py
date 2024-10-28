@@ -20,15 +20,24 @@ class Scrapper:
             response.raise_for_status()
             return response.content
         except requests.RequestException as e:
-            file_name = url.split("=")[:-1]
-            pattern = re.compile(file_name + "[^ ]+.csv")
+            file_name = url.split("=")[-1]
+            pattern = re.compile(f"{file_name}[^ ]+.csv")
+            found = False
+            #print(f"pattern {pattern}")
             for fp in os.listdir("src/database/temp_files/"):
                 match = pattern.match(fp)
+                #print(f"fp {fp} match {match}")
                 if match:
                     file_name = f"src/database/temp_files/{str(match.group(0))}"
                     print(f"O CSV correspondente [{file_name}] existe, tamanho [{os.path.getsize(file_name)}]")
-                else:
-                    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+                    #response = BeautifulSoup(open(file_name, "rb"), 'lxml')
+                    #response = open(file_name, "rb")
+                    #print(f"response {response}")
+                    #return response
+                    found = True
+                    #break
+            if not found:
+                print(f'\nURL [{url}] \nERRO: [{e}]\n')
 
             return None
 
@@ -40,6 +49,7 @@ class Scrapper:
 
         url = f'{self.source_url}/index.php?opcao={opt}' 
 
+        print(f"Pegando subopcao {url} {opt}")
         content = self.get_content(url)
 
         if content:
@@ -60,6 +70,7 @@ class Scrapper:
         else:
             url = f'{self.source_url}/index.php?opcao={opt}'
 
+        print(f"Obtendo a URL de download {opt} {sub_opt}")
         content = self.get_content(url)
 
         if content:
@@ -110,6 +121,7 @@ class Scrapper:
         Realizar o download e escrita do CSV
         '''
 
+        print(f"Baixando {download_url} {folder_path} {file_name}")
         content = self.get_content(download_url)
 
         if content:
@@ -132,7 +144,9 @@ class Scrapper:
                        'opt_05_subopt_01':'Vinhos de mesa', 'opt_05_subopt_02':'Espumantes', 'opt_05_subopt_03':'Uvas frescas', 'opt_05_subopt_04':'Sucos passas', 'opt_05_subopt_05':'Sucos de uva',
                        'opt_06_subopt_01':'Vinhos de mesa', 'opt_06_subopt_02':'Espumantes', 'opt_06_subopt_03':'Uvas frescas', 'opt_06_subopt_04':'Sucos de uva'}
 
+        print(f"Baixando os dados da EMBRAPA ...")
         download_data= self.get_all_download_urls(options=options)
+        print(f"{download_data}\n")
 
         for data in download_data:
             opt = data['opt']
@@ -140,5 +154,6 @@ class Scrapper:
             download_url = data['download_url']
             file_name = f"{opt}_{sub_opt}.csv"
             file_path = 'src/database/temp_files'
+            print(f"Download CSV {download_url} ...")
             self.download_csv(download_url, file_path, file_name)
         

@@ -60,3 +60,9 @@ p=r"" + file_name + "[^ ]+"
 >>> pattern = re.compile(r"opt_02_default[^ ]+")
 >>> match = pattern.match(r"opt_02_default.csv")
 >>> print(f"{match}")
+
+Download CSV http://vitibrasil.cnpuv.embrapa.br/download/ImpFrescas.csv ...
+Baixando http://vitibrasil.cnpuv.embrapa.br/download/ImpFrescas.csv src/database/temp_files opt_05_subopt_03.csv
+
+URL [http://vitibrasil.cnpuv.embrapa.br/download/ImpFrescas.csv] 
+ERRO: [HTTPConnectionPool(host='vitibrasil.cnpuv.embrapa.br', port=80): Max retries exceeded with url: /download/ImpFrescas.csv (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1169261e0>: Failed to establish a new connection: [Errno 61] Connection refused'))]

@@ -19,9 +19,45 @@ class Api:
         self.app = FastAPI()
         self.source_url = 'http://vitibrasil.cnpuv.embrapa.br'
 
+        def handle_csv(year, opt, sub_opt):
+            file_path = "../database/temp_files/"
+            sopt = ""
+            if sub_opt:
+                sopt = f"_subopt_{sub_opt}([^ ]+|)"
+            pattern = re.compile(f"{opt}([^ ]+|){sopt}.csv")
+            print(f"pattern {pattern}")
+            for fp in os.listdir(file_path):
+                print(f"fp [{fp}]")
+                match = pattern.match(fp)
+                print(f"match {match}")
+                found = False
+                if match:
+                    print(f"O CSV correspondente [{fp}] existe, tamanho [{os.path.getsize(file_path)}]")
+                    response = {}
+                    header=""
+                    idx=0
+                    with open(f"{file_path}{fp}", 'rb') as f:
+                        lines = f.readlines()#.replace("\t", ";")
+                        for l in lines:
+                            print(f"l {l}")
+                            if not header:
+                                header = l
+                                #print(f"header {header.decode().split(";")}")
+                                print(f"header {re.split("[;,\t]", header.decode())}")
+                                #idx = header.decode().split(";").index(f"{year}")
+                                idx = re.split("[;,\t]", header.decode()).index(f"{year}")
+                                print(f"idx {idx}")
+                            else:
+                                response[re.split("[;,\t]", l.decode())[1]]=re.split("[;,\t]", l.decode())[idx]
+                                #response[l.decode().split(";")[1]]=l.decode().split(";")[idx]
+                        print(f"response {response}")
+                    found = True
+                if found:
+                    return response
+        
         @self.app.get("/")
         async def read_root():
-            return {"Hello": "World"}
+            return {"API": "V1"}
         
         @self.app.get("/producao")
         async def get_producao(ano: int):
@@ -35,50 +71,120 @@ class Api:
                 raise requests.RequestException
                 return response.content
             except requests.RequestException as e:
-                file_name = "op_02_default"
-                pattern = re.compile(r"op_02_default[^ ]+")
-                print(f"pattern {pattern}")
-                for fp in os.listdir("../database/temp_files/"):
-                    print(f"fp {fp}")
-                    match = pattern.match(fp)
-                    print(f"match {match}")
-
-                    if match:
-                        print(f"O CSV correspondente [{file_name}] existe, tamanho [{os.path.getsize(file_name)}]")
-                        response = {}
-                        header=""
-                        idx=0
-                        with open(file_path, 'rb') as file:
-                            lines = f.readlines()
-                            for l in lines:
-                                if not header:
-                                    header = l
-                                    idx = header.split(";").index(str(ano))
-                                else:
-                                    response[l.split(";")[1]]=l.split(";")[idx]
-                    else:
-                        print(f'\nURL [{url}] \nERRO: [{e}]\n')
-
-                        return None
+                response = handle_csv(ano, "opt_02", "")
+                if not response:
+                    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+                    return None                
+                #file_path = "../database/temp_files/"
+                #pattern = re.compile("opt_02[^ ]+.csv")
+                #print(f"pattern {pattern}")
+                #for fp in os.listdir(file_path):
+                #    print(f"fp [{fp}]")
+                #    match = pattern.match(fp)
+                #    print(f"match {match}")
+                #    found = False
+                #    if match:
+                #        print(f"O CSV correspondente [{fp}] existe, tamanho [{os.path.getsize(file_path)}]")
+                #        response = {}
+                #        header=""
+                #        idx=0
+                #        with open(f"{file_path}{fp}", 'rb') as f:
+                #            lines = f.readlines()
+                #            for l in lines:
+                #                if not header:
+                #                    header = l
+                #                    print(f"header {header.decode().split(";")}")
+                #                    idx = header.decode().split(";").index(f"{ano}")
+                #                    print(f"idx {idx}")
+                #                else:
+                #                    response[l.decode().split(";")[1]]=l.decode().split(";")[idx]
+                #            print(f"response {response}")
+                #        found = True
+                #    if found:
+                #        break
+                #if not found:
+                #    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+                #    return None
 
             return response
 
         @self.app.get("/processamento")
-        async def get_processamento(ano: int):
-            return {"Teste": "Processamento"}
+        async def get_processamento(sub_opcao: str, ano: int):
+            try:
+                print(f"sub_opcao {sub_opcao}")
+                url = f"{self.source_url}/index.php?opcao=opt_03&sub_opt={sub_opcao}"
+                if ano:
+                    url = url + f"&ano={str(ano)}" 
+
+                response = requests.get(url)
+                response.raise_for_status()
+                raise requests.RequestException
+                return response.content
+            except requests.RequestException as e:
+                response = handle_csv(ano, "opt_03", sub_opcao)
+                if not response:
+                    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+                    return None                
+
+            return response
 
         @self.app.get("/comercializacao")
         async def get_comercializacao(ano: int):
-            return {"Teste": "Comercializacao"}
+            try:
+                url = f"{self.source_url}/index.php?opcao=opt_04"
+                if ano:
+                    url = url + f"&ano={str(ano)}" 
+
+                response = requests.get(url)
+                response.raise_for_status()
+                raise requests.RequestException
+                return response.content
+            except requests.RequestException as e:
+                response = handle_csv(ano, "opt_04", "")
+
+            return response
 
         @self.app.get("/importacao")
-        async def get_importacao(ano: int):
-            return {"Teste": "Importacao"}
+        async def get_importacao(ano: int, sub_opcao: str = ""):
+            try:
+                print(f"sub_opcao {sub_opcao}")
+                url = f"{self.source_url}/index.php?opcao=opt_05"
+                if sub_opcao:
+                    url = url + f"&sub_opt={sub_opcao}" 
+                if ano:
+                    url = url + f"&ano={str(ano)}" 
 
+                response = requests.get(url)
+                response.raise_for_status()
+                raise requests.RequestException
+                return response.content
+            except requests.RequestException as e:
+                response = handle_csv(ano, "opt_05", sub_opcao)
+                if not response:
+                    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+                    return None                
+
+            return response
+        
         @self.app.get("/exportacao")
-        async def get_exportacoa(ano: int):
-            return {"Teste": "Exportacao"}
+        async def get_exportacoa(sub_opcao: str, ano: int):
+            try:
+                print(f"sub_opcao {sub_opcao}")
+                url = f"{self.source_url}/index.php?opcao=opt_06&sub_opt={sub_opcao}"
+                if ano:
+                    url = url + f"&ano={str(ano)}" 
 
+                response = requests.get(url)
+                response.raise_for_status()
+                raise requests.RequestException
+                return response.content
+            except requests.RequestException as e:
+                response = handle_csv(ano, "opt_06", sub_opcao)
+                if not response:
+                    print(f'\nURL [{url}] \nERRO: [{e}]\n')
+                    return None                
+
+            return response
 server = Api()
 
 if __name__ == "__main__":
