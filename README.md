@@ -71,3 +71,7 @@ btendo a URL de download opt_06 subopt_04
 [{'opt': 'opt_02', 'sub_opt': None, 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/Producao.csv'}, {'opt': 'opt_03', 'sub_opt': 'subopt_01', 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/ProcessaViniferas.csv'}, {'opt': 'opt_03', 'sub_opt': 'subopt_02', 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/ProcessaAmericanas.csv'}, {'opt': 'opt_03', 'sub_opt': 'subopt_03', 'download_url': 'http://vitibrasil.cnpuv.embrapa.br/download/ProcessaMesa.csv'}, {'opt': 'opt_0
 
 python3 src/pipeline.py
+
+http://127.0.0.1:8000/docs#/
+
+http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_04
