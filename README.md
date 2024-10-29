@@ -75,3 +75,5 @@ python3 src/pipeline.py
 http://127.0.0.1:8000/docs#/
 
 http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_04
+
+

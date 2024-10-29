@@ -10,7 +10,7 @@ class Scrapper:
         
         self.source_url = 'http://vitibrasil.cnpuv.embrapa.br'
 
-    def get_content(self, url):
+    def get_content(self, url, options = "", sub_options = ""):
         '''
         Realizar a requisição HTTP e retornar o conteúdo
         '''
@@ -20,7 +20,13 @@ class Scrapper:
             response.raise_for_status()
             return response.content
         except requests.RequestException as e:
-            file_name = url.split("=")[-1]
+            #file_name = url.split("=")[-1]
+            file_name = url.split("/")[-1]
+            if options and not options[file_name]:
+                file_name = f"{options[file_name]}_default.csv"
+            elif sub_options and not sub_options[file_name]:
+                file_name = f"{sub_options[file_name]}.csv"
+            print(f"file_name {file_name}")
             pattern = re.compile(f"{file_name}[^ ]+.csv")
             found = False
             #print(f"pattern {pattern}")
@@ -94,7 +100,6 @@ class Scrapper:
         
         for opt in options:
             sub_opts = self.get_subopt(opt)
-
             if sub_opts:
                 for sub_opt in sub_opts:
                     download_url = self.get_download_url(opt, sub_opt)
@@ -115,14 +120,14 @@ class Scrapper:
         
         return result
 
-    def download_csv(self, download_url, folder_path, file_name):
+    def download_csv(self, download_url, folder_path, file_name, options, sub_options):
 
         '''
         Realizar o download e escrita do CSV
         '''
 
         print(f"Baixando {download_url} {folder_path} {file_name}")
-        content = self.get_content(download_url)
+        content = self.get_content(download_url, options, sub_options)
 
         if content:
 
@@ -138,11 +143,10 @@ class Scrapper:
     def run(self):
 
         #options = ['opt_02', 'opt_03', 'opt_04', 'opt_05', 'opt_06']
-        options = {'opt_02':'Producao', 'opt_03':'Processamento', 'opt_04':'Comercializacao', 'opt_05':'Importacao', 'opt_06':'Exportacao'}
-        sub_options = {'opt_02_subopt_01':'Viniferas', 'opt_02_subopt_02':'Americanas e hibridas', 'opt_02_subopt_03':'Uvas de Mesa', 'opt_02_subopt_04':'Sem classificacao',
-                       'opt_03_subopt_01':'Viniferas', 'opt_03_subopt_02':'Americanas e hibridas', 'opt_03_subopt_03':'Uvas de Mesa', 'opt_03_subopt_04':'Sem classificacao',  
-                       'opt_05_subopt_01':'Vinhos de mesa', 'opt_05_subopt_02':'Espumantes', 'opt_05_subopt_03':'Uvas frescas', 'opt_05_subopt_04':'Sucos passas', 'opt_05_subopt_05':'Sucos de uva',
-                       'opt_06_subopt_01':'Vinhos de mesa', 'opt_06_subopt_02':'Espumantes', 'opt_06_subopt_03':'Uvas frescas', 'opt_06_subopt_04':'Sucos de uva'}
+        options = {'Producao.csv':'opt_02', 'opt_03':'opt_03', 'Comercio.csv':'opt_04', 'opt_05':'opt_05', 'opt_06':'opt_06'}
+        sub_options = {'ProcessaViniferas.csv':'opt_03_subopt_01', 'ProcessaAmericanas.csv':'opt_03_subopt_02', 'ProcessaMesa.csv':'opt_03_subopt_03', 'ProcessaSemclass.csv':'opt_03_subopt_04', 
+                       'ImpVinhos.csv':'opt_05_subopt_01', 'ImpEspumantes.csv':'opt_05_subopt_02', 'ImpFrescas.csv':'opt_05_subopt_03', 'ImpPassas.csv':'opt_05_subopt_04', 'ImpSuco.csv':'opt_05_subopt_05',
+                       'ExpVinho.csv':'opt_06_subopt_01', 'ExpEspumantes.csv':'opt_06_subopt_02', 'ExpUva.csv':'opt_06_subopt_03', 'ExpSuco.csv':'opt_06_subopt_04'}
 
         print(f"Baixando os dados da EMBRAPA ...")
         download_data= self.get_all_download_urls(options=options)
@@ -155,5 +159,5 @@ class Scrapper:
             file_name = f"{opt}_{sub_opt}.csv"
             file_path = 'src/database/temp_files'
             print(f"Download CSV {download_url} ...")
-            self.download_csv(download_url, file_path, file_name)
+            self.download_csv(download_url, file_path, file_name, options, sub_options)
         
