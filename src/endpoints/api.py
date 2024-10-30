@@ -2,6 +2,7 @@ from typing import Union
 import requests
 import re
 import os
+from bs4 import BeautifulSoup
 
 #import uvicorn
 from fastapi import FastAPI
@@ -36,6 +37,7 @@ class Api:
                     response = {}
                     header=""
                     idx=0
+                    sum=0
                     with open(f"{file_path}{fp}", 'rb') as f:
                         lines = f.readlines()#.replace("\t", ";")
                         for l in lines:
@@ -47,14 +49,44 @@ class Api:
                                 #idx = header.decode().split(";").index(f"{year}")
                                 idx = re.split("[;,\t]", header.decode()).index(f"{year}")
                                 print(f"idx {idx}")
+                                response["Produto"] = "Quantidade (L.)"
                             else:
-                                response[re.split("[;,\t]", l.decode())[1]]=re.split("[;,\t]", l.decode())[idx]
+                                response[re.split("[;,\t]", l.decode())[2].strip()]=re.split("[;,\t]", l.decode())[idx]
+                                value = "0"
+                                if re.split("[;,\t]", l.decode())[1] != re.split("[;,\t]", l.decode())[2]:
+                                    sum = sum + int(re.split("[;,\t]", l.decode())[idx])
                                 #response[l.decode().split(";")[1]]=l.decode().split(";")[idx]
+                        response["Total"] = str(sum)
                         print(f"response {response}")
                     found = True
                 if found:
                     return response
-        
+
+        def handle_html(content):
+            soup = BeautifulSoup(content)
+            #print(f"{soup}")
+            table = soup.find("table", attrs={"class":"tb_base tb_dados"})
+
+            # The first tr contains the field names.
+            headings = [th.get_text().strip() for th in table.find("tr").find_all("th")]
+
+            datasets = {}
+            datasets[headings[0]] = headings[1]
+            #print(f"{headings}")
+            for row in table.find_all("tr")[1:]:
+                #dataset = zip(headings, (td.get_text() for td in row.find_all("td")))
+                line = [td.get_text().strip() for td in row.find_all("td")]
+                #print(f"{line[0]}")
+                datasets[line[0].strip()] = line[1].replace(".", "").replace("-", "0")
+                #datasets.append(dataset)
+            
+            print(f"{datasets}")
+            return datasets
+
+        def save_to_db(response):
+            print("SAVE")
+
+
         @self.app.get("/")
         async def read_root():
             return {"API": "V1"}
@@ -68,8 +100,8 @@ class Api:
 
                 response = requests.get(url)
                 response.raise_for_status()
-                raise requests.RequestException
-                return response.content
+                #raise requests.RequestException
+                response = handle_html(response.content)
             except requests.RequestException as e:
                 response = handle_csv(ano, "opt_02", "")
                 if not response:
@@ -106,20 +138,23 @@ class Api:
                 #    print(f'\nURL [{url}] \nERRO: [{e}]\n')
                 #    return None
 
+            save_to_db(response)
+
             return response
 
         @self.app.get("/processamento")
         async def get_processamento(sub_opcao: str, ano: int):
             try:
                 print(f"sub_opcao {sub_opcao}")
-                url = f"{self.source_url}/index.php?opcao=opt_03&sub_opt={sub_opcao}"
+                url = f"{self.source_url}/index.php?opcao=opt_03&subopcao=subopt_{sub_opcao}"
                 if ano:
                     url = url + f"&ano={str(ano)}" 
 
                 response = requests.get(url)
                 response.raise_for_status()
-                raise requests.RequestException
-                return response.content
+                #raise requests.RequestException
+                response = handle_html(response.content)
+                return response
             except requests.RequestException as e:
                 response = handle_csv(ano, "opt_03", sub_opcao)
                 if not response:
@@ -137,8 +172,9 @@ class Api:
 
                 response = requests.get(url)
                 response.raise_for_status()
-                raise requests.RequestException
-                return response.content
+                #raise requests.RequestException
+                response = handle_html(response.content)
+                return response
             except requests.RequestException as e:
                 response = handle_csv(ano, "opt_04", "")
 
@@ -150,14 +186,15 @@ class Api:
                 print(f"sub_opcao {sub_opcao}")
                 url = f"{self.source_url}/index.php?opcao=opt_05"
                 if sub_opcao:
-                    url = url + f"&sub_opt={sub_opcao}" 
+                    url = url + f"&subopcao=subopt_{sub_opcao}" 
                 if ano:
                     url = url + f"&ano={str(ano)}" 
 
                 response = requests.get(url)
                 response.raise_for_status()
-                raise requests.RequestException
-                return response.content
+                #raise requests.RequestException
+                response = handle_html(response.content)
+                return response
             except requests.RequestException as e:
                 response = handle_csv(ano, "opt_05", sub_opcao)
                 if not response:
@@ -170,14 +207,15 @@ class Api:
         async def get_exportacoa(sub_opcao: str, ano: int):
             try:
                 print(f"sub_opcao {sub_opcao}")
-                url = f"{self.source_url}/index.php?opcao=opt_06&sub_opt={sub_opcao}"
+                url = f"{self.source_url}/index.php?opcao=opt_06&subopcao=subopt_{sub_opcao}"
                 if ano:
                     url = url + f"&ano={str(ano)}" 
 
                 response = requests.get(url)
                 response.raise_for_status()
-                raise requests.RequestException
-                return response.content
+                #raise requests.RequestException
+                response = handle_html(response.content)
+                return response
             except requests.RequestException as e:
                 response = handle_csv(ano, "opt_06", sub_opcao)
                 if not response:

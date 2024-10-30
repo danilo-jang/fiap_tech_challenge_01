@@ -77,3 +77,10 @@ http://127.0.0.1:8000/docs#/
 http://vitibrasil.cnpuv.embrapa.br/index.php?opcao=opt_04
 
 
+sudo apt install docker-compose
+sudo usermod -aG docker <user>
+
+export MONGODB_URL="mongodb+srv://pos3mlet:pos3mlet@127.0.0.1:27017/pos3mlet?retryWrites=true&w=majority"
+
+
+

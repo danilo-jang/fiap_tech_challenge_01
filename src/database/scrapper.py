@@ -22,6 +22,7 @@ class Scrapper:
         except requests.RequestException as e:
             #file_name = url.split("=")[-1]
             file_name = url.split("/")[-1]
+            print(f"options[file_name] {options[file_name]}")
             if options and not options[file_name]:
                 file_name = f"{options[file_name]}_default.csv"
             elif sub_options and not sub_options[file_name]:
