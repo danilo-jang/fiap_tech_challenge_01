@@ -8,6 +8,7 @@ def pipeline():
     '''
     Execução de todo pipeline de extração dos dados
     '''
+    
     scraper = Scrapper()
 
     scraper.run()

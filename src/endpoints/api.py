@@ -3,17 +3,9 @@ import requests
 import re
 import os
 from bs4 import BeautifulSoup
-
-#import uvicorn
 from fastapi import FastAPI
-#, APIRouter
-#from fastapi_utils.cbv import cbv
-#from fastapi_utils.inferring_router import InferringRouter
 
-#app = FastAPI()
-#router = APIRouter()
 
-#@router.get("/", tags=["index"])
 class Api:
 
     def __init__(self):
@@ -39,14 +31,12 @@ class Api:
                     idx=0
                     sum=0
                     with open(f"{file_path}{fp}", 'rb') as f:
-                        lines = f.readlines()#.replace("\t", ";")
+                        lines = f.readlines()
                         for l in lines:
                             print(f"l {l}")
                             if not header:
                                 header = l
-                                #print(f"header {header.decode().split(";")}")
                                 print(f"header {re.split("[;,\t]", header.decode())}")
-                                #idx = header.decode().split(";").index(f"{year}")
                                 idx = re.split("[;,\t]", header.decode()).index(f"{year}")
                                 print(f"idx {idx}")
                                 response["Produto"] = "Quantidade (L.)"
@@ -55,7 +45,6 @@ class Api:
                                 value = "0"
                                 if re.split("[;,\t]", l.decode())[1] != re.split("[;,\t]", l.decode())[2]:
                                     sum = sum + int(re.split("[;,\t]", l.decode())[idx])
-                                #response[l.decode().split(";")[1]]=l.decode().split(";")[idx]
                         response["Total"] = str(sum)
                         print(f"response {response}")
                     found = True
@@ -64,7 +53,6 @@ class Api:
 
         def handle_html(content):
             soup = BeautifulSoup(content)
-            #print(f"{soup}")
             table = soup.find("table", attrs={"class":"tb_base tb_dados"})
 
             # The first tr contains the field names.
@@ -72,13 +60,9 @@ class Api:
 
             datasets = {}
             datasets[headings[0]] = headings[1]
-            #print(f"{headings}")
             for row in table.find_all("tr")[1:]:
-                #dataset = zip(headings, (td.get_text() for td in row.find_all("td")))
                 line = [td.get_text().strip() for td in row.find_all("td")]
-                #print(f"{line[0]}")
                 datasets[line[0].strip()] = line[1].replace(".", "").replace("-", "0")
-                #datasets.append(dataset)
             
             print(f"{datasets}")
             return datasets
@@ -100,43 +84,12 @@ class Api:
 
                 response = requests.get(url)
                 response.raise_for_status()
-                #raise requests.RequestException
                 response = handle_html(response.content)
             except requests.RequestException as e:
                 response = handle_csv(ano, "opt_02", "")
                 if not response:
                     print(f'\nURL [{url}] \nERRO: [{e}]\n')
                     return None                
-                #file_path = "../database/temp_files/"
-                #pattern = re.compile("opt_02[^ ]+.csv")
-                #print(f"pattern {pattern}")
-                #for fp in os.listdir(file_path):
-                #    print(f"fp [{fp}]")
-                #    match = pattern.match(fp)
-                #    print(f"match {match}")
-                #    found = False
-                #    if match:
-                #        print(f"O CSV correspondente [{fp}] existe, tamanho [{os.path.getsize(file_path)}]")
-                #        response = {}
-                #        header=""
-                #        idx=0
-                #        with open(f"{file_path}{fp}", 'rb') as f:
-                #            lines = f.readlines()
-                #            for l in lines:
-                #                if not header:
-                #                    header = l
-                #                    print(f"header {header.decode().split(";")}")
-                #                    idx = header.decode().split(";").index(f"{ano}")
-                #                    print(f"idx {idx}")
-                #                else:
-                #                    response[l.decode().split(";")[1]]=l.decode().split(";")[idx]
-                #            print(f"response {response}")
-                #        found = True
-                #    if found:
-                #        break
-                #if not found:
-                #    print(f'\nURL [{url}] \nERRO: [{e}]\n')
-                #    return None
 
             save_to_db(response)
 
@@ -204,7 +157,7 @@ class Api:
             return response
         
         @self.app.get("/exportacao")
-        async def get_exportacoa(sub_opcao: str, ano: int):
+        async def get_exportacao(sub_opcao: str, ano: int):
             try:
                 print(f"sub_opcao {sub_opcao}")
                 url = f"{self.source_url}/index.php?opcao=opt_06&subopcao=subopt_{sub_opcao}"
@@ -223,7 +176,5 @@ class Api:
                     return None                
 
             return response
+        
 server = Api()
-
-if __name__ == "__main__":
-    server.run()
