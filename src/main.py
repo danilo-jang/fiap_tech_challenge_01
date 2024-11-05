@@ -69,7 +69,12 @@ def save_to_db(response):
 
 @app.get("/")
 async def read_root():
-    return {"API": "V1"}
+    return {    
+        "Name": "FIAP Tech Challenge 1 - API Embrapa",
+        "version": "1.0",
+        "Description": "API desenvolvida como parte do desafio técnico da fase 1 da pós-graduação em Machine Learning Engineering",
+        "Documentation": "/docs"
+    }
 
 @app.get("/producao")
 async def get_producao(ano: int):
