@@ -5,8 +5,6 @@ import os
 from bs4 import BeautifulSoup
 from fastapi import FastAPI
 
-
-
 app = FastAPI()
 source_url = 'http://vitibrasil.cnpuv.embrapa.br'
 
