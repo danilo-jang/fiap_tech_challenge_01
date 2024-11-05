@@ -1,7 +1,7 @@
 import os 
 import uvicorn
 
-from database.scrapper import Scrapper
+from src.database.scrapper import Scrapper
 
 def pipeline():
 
